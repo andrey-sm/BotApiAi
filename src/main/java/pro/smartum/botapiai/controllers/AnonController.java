@@ -22,7 +22,6 @@ public class AnonController {
 
     @PostMapping("/message")
     public ResponseEntity<Object> login(@RequestBody MessageRq request) {
-        Logger.log(new Gson().toJson(request));
         return new ResponseEntity<>(messageService.replyToMessage(request), HttpStatus.OK);
     }
 }
