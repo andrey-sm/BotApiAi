@@ -3,6 +3,8 @@ package pro.smartum.botapiai.services.impl;
 
 import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import pro.smartum.botapiai.dto.ResultDto;
 import pro.smartum.botapiai.dto.rq.MessageRq;
 import pro.smartum.botapiai.dto.rs.MessageRs;
 import pro.smartum.botapiai.dto.rs.ProgramORs;
@@ -17,8 +19,15 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageRs replyToMessage(MessageRq messageRq) {
-        //fetchProgramOAnswer()
-        return new MessageRs("AK speech", "AK displayText");
+        String question = null;
+        ResultDto result = messageRq.getResult();
+        if(result != null)
+            question = result.getResolvedQuery();
+
+        String answer = !StringUtils.isEmpty(question)
+                ? fetchProgramOAnswer(question)
+                : "Wrong or empty question";
+        return new MessageRs(answer, "DisplayText: " + answer);
     }
 
     public static String fetchProgramOAnswer(String message) {
