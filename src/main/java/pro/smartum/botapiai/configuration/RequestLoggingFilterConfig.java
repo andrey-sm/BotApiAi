@@ -1,4 +1,4 @@
-package pro.smartum.botapiai.config;
+package pro.smartum.botapiai.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ public class RequestLoggingFilterConfig {
         filter.setIncludePayload(true);
         filter.setMaxPayloadLength(10000);
         filter.setIncludeHeaders(true);
-        filter.setAfterMessagePrefix("REQUEST DATA : ");
+        filter.setAfterMessagePrefix("REQUEST DATA :> ");
         return filter;
     }
 }

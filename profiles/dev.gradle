@@ -1,0 +1,8 @@
+ext {
+    datasource_driver = "org.postgresql.Driver"
+    datasource_url = "jdbc:postgresql://ec2-79-125-13-42.eu-west-1.compute.amazonaws.com:5432/d42odneubko1ou?sslmode=require"
+    datasource_username = "bkuxhgtwuexglk"
+    datasource_password = "814da00e418675f1ded1ecad727626213646cd445992da6e7a0bd5af5b1378c7"
+}
+
+print "dev profile activated"

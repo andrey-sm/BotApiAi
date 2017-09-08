@@ -21,7 +21,7 @@ public class AnonController {
     private MessageService messageService;
 
     @PostMapping("/message")
-    public ResponseEntity<Object> login(@RequestBody MessageRq request) {
+    public ResponseEntity<Object> message(@RequestBody MessageRq request) {
         return new ResponseEntity<>(messageService.replyToMessage(request), HttpStatus.OK);
     }
 }

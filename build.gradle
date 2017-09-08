@@ -1,0 +1,133 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.6.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+		jcenter()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'nu.studer:gradle-jooq-plugin:1.0.6'
+		classpath 'org.flywaydb:flyway-gradle-plugin:4.0.1'
+		classpath 'org.postgresql:postgresql:9.4-1202-jdbc42'
+	}
+	configurations.classpath {
+		resolutionStrategy {
+			forcedModules = [
+					'org.jooq:jooq:3.9.1',
+					'org.jooq:jooq-meta:3.9.1',
+					'org.jooq:jooq-codegen:3.9.1'
+			]
+		}
+	}
+}
+
+ext {
+	datasource_driver = 'org.postgresql.Driver'
+	defaultProfile = "dev"
+	profile = project.hasProperty('profile') ? project.getProperty('profile') : ext.defaultProfile
+}
+
+apply from: "profiles/${profile}.gradle"
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'java'
+apply plugin: "org.flywaydb.flyway"
+apply plugin: "nu.studer.jooq"
+apply plugin: 'idea'
+
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets {
+	generated {
+		java { srcDirs = ['src/generated/java'] }
+		compileClasspath += sourceSets.main.runtimeClasspath
+	}
+
+	main {
+		java { srcDirs += ['src/generated/java'] }
+	}
+}
+
+flyway {
+	url = "${datasource_url}"
+	user = "${datasource_username}"
+	password = "${datasource_password}"
+	locations = ['filesystem:sql/migration']
+}
+
+repositories {
+	jcenter()
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-jooq')
+
+	compile 'com.zaxxer:HikariCP:2.4.7'
+	compile 'org.apache.commons:commons-lang3:3.4'
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+	compile('org.postgresql:postgresql')
+	compileOnly('org.projectlombok:lombok')
+
+}
+
+//https://github.com/etiennestuder/gradle-jooq-plugin
+//http://www.jooq.org/xsd/jooq-codegen-3.3.0.xsd
+jooq {
+	d42odneubko1ou(sourceSets.main) {
+		jdbc {
+			driver = "${datasource_driver}"
+			url = "${datasource_url}"
+			user = "${datasource_username}"
+			password = "${datasource_password}"
+		}
+		generator {
+			name = 'org.jooq.util.DefaultGenerator'
+			strategy {
+				name = 'org.jooq.util.DefaultGeneratorStrategy'
+			}
+			database {
+				name = 'org.jooq.util.postgres.PostgresDatabase'
+				inputSchema = 'd42odneubko1ou '
+				inputSchema = 'public'
+				excludes = 'schema_version'
+			}
+			generate {
+				relations = true
+				deprecated = false
+				records = true
+				fluentSetters = true
+				daos = false
+				pojos = false
+				immutablePojos = false
+			}
+			target {
+				packageName = 'pro.smartum.botapiai.db'
+				directory = 'src/generated/java'
+			}
+		}
+	}
+}
+
+processResources {
+	filesMatching("*.properties") {
+		expand(project.properties)
+	}
+}
+
+clean {
+	delete sourceSets.generated.java.srcDirs
+}
+
+idea {
+	module {
+		sourceDirs += file('src/generated/java')
+	}
+}
+
+generateD42odneubko1ouJooqSchemaSource.dependsOn flywayMigrate
