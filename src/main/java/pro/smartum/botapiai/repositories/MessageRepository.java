@@ -23,4 +23,12 @@ public class MessageRepository extends BaseRepository<MessageRecord, Message> {
     protected Message table() {
         return MESSAGE;
     }
+
+    public List<MessageRecord> getSorted(Long conversationId) {
+        return jooq().select()
+                .from(MESSAGE)
+                .where(MESSAGE.CONVERSATION_ID.eq(conversationId))
+                .orderBy(MESSAGE.TIMESTAMP.desc())
+                .fetchInto(MESSAGE);
+    }
 }

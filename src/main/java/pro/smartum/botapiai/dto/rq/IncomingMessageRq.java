@@ -9,7 +9,7 @@ import pro.smartum.botapiai.dto.StatusDto;
 import java.sql.Timestamp;
 
 @Data
-public class MessageRq {
+public class IncomingMessageRq {
 
     private final String id;
     private final String lang;

@@ -9,7 +9,7 @@ import pro.smartum.botapiai.db.tables.records.MessageRecord;
 import pro.smartum.botapiai.dto.ConversationType;
 import pro.smartum.botapiai.dto.ParametersDto;
 import pro.smartum.botapiai.dto.ResultDto;
-import pro.smartum.botapiai.dto.rq.MessageRq;
+import pro.smartum.botapiai.dto.rq.IncomingMessageRq;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.services.MessageService;
@@ -29,7 +29,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
-    public void handleMessage(MessageRq messageRq) {
+    public void handleMessage(IncomingMessageRq messageRq) {
         ResultDto result = messageRq.getResult();
         if(result != null) {
             ConversationRecord convRecord = buildConversationRecord(result.getContexts().get(0).getParameters());
@@ -53,7 +53,7 @@ public class MessageServiceImpl implements MessageService {
 //                ? fetchProgramOAnswer(question)
 //                : "Wrong or empty question";
 //
-//        System.out.println("Size = " + conversationRepository.getAll().size());
+//        System.out.println("Size = " + conversationRepository.getAllSorted().size());
     }
 
     private ConversationRecord buildConversationRecord(ParametersDto parameters) {
