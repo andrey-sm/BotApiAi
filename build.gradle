@@ -74,6 +74,8 @@ dependencies {
 	compile('org.postgresql:postgresql')
 	compileOnly('org.projectlombok:lombok')
 
+
+	compile 'org.codehaus.jackson:jackson-core-asl:1.1.0'
 	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
 	compile 'org.apache.commons:commons-lang3:3.4'
 

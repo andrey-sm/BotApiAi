@@ -1,17 +1,22 @@
 package pro.smartum.botapiai.services.impl;
 
 
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import pro.smartum.botapiai.db.tables.records.ConversationRecord;
+import pro.smartum.botapiai.db.tables.records.MessageRecord;
+import pro.smartum.botapiai.dto.ConversationType;
+import pro.smartum.botapiai.dto.ParametersDto;
 import pro.smartum.botapiai.dto.ResultDto;
 import pro.smartum.botapiai.dto.rq.MessageRq;
-import pro.smartum.botapiai.dto.rs.MessageRs;
-import pro.smartum.botapiai.dto.rs.ProgramORs;
-import pro.smartum.botapiai.services.MessageService;
-import pro.smartum.botapiai.util.HttpURLConnectionUtils;
 import pro.smartum.botapiai.repositories.ConversationRepository;
+import pro.smartum.botapiai.repositories.MessageRepository;
+import pro.smartum.botapiai.services.MessageService;
+
+import java.sql.Timestamp;
+
+import static pro.smartum.botapiai.dto.ConversationType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,39 +26,76 @@ public class MessageServiceImpl implements MessageService {
     private static final String SMARTUM_BOT = "SmartumBot";
 
     private final ConversationRepository conversationRepository;
+    private final MessageRepository messageRepository;
 
     @Override
-    public MessageRs replyToMessage(MessageRq messageRq) {
-        String question = null;
+    public void handleMessage(MessageRq messageRq) {
         ResultDto result = messageRq.getResult();
-        if(result != null)
-            question = result.getResolvedQuery();
+        if(result != null) {
+            ConversationRecord convRecord = buildConversationRecord(result.getContexts().get(0).getParameters());
+            convRecord = conversationRepository.getOrCreate(convRecord);
 
-        String answer = !StringUtils.isEmpty(question)
-                ? fetchProgramOAnswer(question)
-                : "Wrong or empty question";
+            Timestamp timestamp = messageRq.getTimestamp();
+            convRecord.setTimestamp(timestamp);
+            convRecord.update();
 
-        System.out.println("Size = " + conversationRepository.getAll().size());
+            String question = result.getResolvedQuery();
+            MessageRecord messageRecord = messageRepository.newRecord();
+            messageRecord.setText(question);
+            messageRecord.setConversationId(convRecord.getId());
+            messageRecord.setTimestamp(timestamp);
 
-        return new MessageRs(answer, "DisplayText: " + answer);
-    }
-
-    public static String fetchProgramOAnswer(String message) {
-        message = message.replaceAll(" ", "%20");
-        try {
-            String url = "http://api.program-o.com/v2/chatbot/?" +
-                    "bot_id=6" +
-                    "&say=" + message +
-                    "&convo_id=x1" +
-                    "&format=json";
-
-            String programOResponseJson = HttpURLConnectionUtils.sendGet(url);
-            ProgramORs apiBotResponse = new Gson().fromJson(programOResponseJson, ProgramORs.class);
-            String botSay = apiBotResponse.getBotSay().replaceAll(PROGRAM_O, SMARTUM_BOT);
-            return botSay;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "O-Program error";
+            messageRepository.store(messageRecord);
         }
+
+// https://monosnap.com/file/dQ7OC0j3rQzOrzdWUWPWikeYG3qHkZ#
+//        String answer = !StringUtils.isEmpty(question)
+//                ? fetchProgramOAnswer(question)
+//                : "Wrong or empty question";
+//
+//        System.out.println("Size = " + conversationRepository.getAll().size());
     }
+
+    private ConversationRecord buildConversationRecord(ParametersDto parameters) {
+        ConversationRecord cr = conversationRepository.newRecord();
+        cr.setFbSenderId(parameters.getFbSenderId());
+        cr.setTgChatId(parameters.getTgChatId());
+        cr.setSlackUserId(parameters.getSlackUserId());
+        cr.setSlackChannelId(parameters.getSlackChannel());
+        cr.setType(fetchConversationType(parameters).name());
+        return cr;
+    }
+
+    private ConversationType fetchConversationType(ParametersDto parameters) {
+        if(!isEmpty(parameters.getFbSenderId()))
+            return FACEBOOK;
+        if(!isEmpty(parameters.getTgChatId()))
+            return TELEGRAM;
+        if(!isEmpty(parameters.getSlackChannel()) && !isEmpty(parameters.getSlackUserId()))
+            return SLACK;
+        return SKYPE;
+    }
+
+    private boolean isEmpty(String str) {
+        return StringUtils.isEmpty(str);
+    }
+
+//    public static String fetchProgramOAnswer(String message) {
+//        message = message.replaceAll(" ", "%20");
+//        try {
+//            String url = "http://api.program-o.com/v2/chatbot/?" +
+//                    "bot_id=6" +
+//                    "&say=" + message +
+//                    "&convo_id=x1" +
+//                    "&format=json";
+//
+//            String programOResponseJson = HttpURLConnectionUtils.sendGet(url);
+//            ProgramORs apiBotResponse = new Gson().fromJson(programOResponseJson, ProgramORs.class);
+//            String botSay = apiBotResponse.getBotSay().replaceAll(PROGRAM_O, SMARTUM_BOT);
+//            return botSay;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "O-Program error";
+//        }
+//    }
 }
