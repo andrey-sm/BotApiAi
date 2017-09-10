@@ -3,8 +3,8 @@ buildscript {
 		springBootVersion = '1.5.6.RELEASE'
 	}
 	repositories {
-		mavenCentral()
 		jcenter()
+		mavenCentral()
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -33,13 +33,9 @@ apply from: "profiles/${profile}.gradle"
 
 apply plugin: 'org.springframework.boot'
 apply plugin: 'java'
+apply plugin: 'idea'
 apply plugin: "org.flywaydb.flyway"
 apply plugin: "nu.studer.jooq"
-apply plugin: 'idea'
-
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 sourceSets {
 	generated {
@@ -59,21 +55,29 @@ flyway {
 	locations = ['filesystem:sql/migration']
 }
 
+jar {
+	baseName = 'ai-backend'
+	version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 repositories {
 	jcenter()
 	mavenCentral()
 }
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-jooq')
-
-	compile 'com.zaxxer:HikariCP:2.4.7'
-	compile 'org.apache.commons:commons-lang3:3.4'
-	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.postgresql:postgresql')
 	compileOnly('org.projectlombok:lombok')
 
+	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+	compile 'org.apache.commons:commons-lang3:3.4'
+
+	compile 'com.zaxxer:HikariCP:2.4.7'
 }
 
 //https://github.com/etiennestuder/gradle-jooq-plugin
@@ -112,6 +116,10 @@ jooq {
 			}
 		}
 	}
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.13'
 }
 
 processResources {
