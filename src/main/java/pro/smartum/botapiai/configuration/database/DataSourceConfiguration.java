@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,6 +27,7 @@ public class DataSourceConfiguration {
     @Value("${connection.pool.max.size}")
     private Integer connectionMaxSize;
 
+    @ConditionalOnMissingBean(DataSource.class)
     @Bean(destroyMethod = "close")
     public DataSource dataSource() {
         HikariConfig hikariConfig = new HikariConfig();
