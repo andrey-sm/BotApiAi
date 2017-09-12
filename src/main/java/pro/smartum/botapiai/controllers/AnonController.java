@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.smartum.botapiai.dto.rq.IncomingMessageRq;
+import pro.smartum.botapiai.dto.rq.ReplyRq;
 import pro.smartum.botapiai.services.ConversationService;
 import pro.smartum.botapiai.services.MessageService;
 
@@ -32,5 +33,10 @@ public class AnonController {
     @GetMapping("/conversations/{id}/history")
     public ResponseEntity<Object> getConversation(@PathVariable("id") Long conversationId) {
         return new ResponseEntity<>(conversationService.getConversationHistory(conversationId), HttpStatus.OK);
+    }
+
+    @PostMapping("/conversations/{id}/reply")
+    public ResponseEntity<Object> replyToConversation(@PathVariable("id") Long conversationId, @RequestBody ReplyRq rq) {
+        return new ResponseEntity<>(conversationService.replyToConversation(conversationId, rq), HttpStatus.OK);
     }
 }

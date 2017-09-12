@@ -27,6 +27,7 @@ ext {
 	datasource_driver = 'org.postgresql.Driver'
 	defaultProfile = "dev"
 	profile = project.hasProperty('profile') ? project.getProperty('profile') : ext.defaultProfile
+	retrofit_version = '2.3.0'
 }
 
 apply from: "profiles/${profile}.gradle"
@@ -74,13 +75,17 @@ dependencies {
 	compile('org.postgresql:postgresql')
 	compileOnly('org.projectlombok:lombok')
 
-
 	compile 'org.codehaus.jackson:jackson-core-asl:1.1.0'
 	compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
 	compile 'org.apache.commons:commons-lang3:3.4'
 	compile "org.apache.commons:commons-collections4:4.1"
 
 	compile 'com.zaxxer:HikariCP:2.4.7'
+
+	compile "com.squareup.retrofit2:retrofit:$retrofit_version"
+	compile "com.squareup.retrofit2:converter-gson:$retrofit_version"
+	compile "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
+	compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
 }
 
 //https://github.com/etiennestuder/gradle-jooq-plugin

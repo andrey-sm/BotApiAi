@@ -7,11 +7,12 @@ public class MessageConverter implements Converter<MessageRecord, MessageDto> {
 
     @Override
     public MessageDto apply(MessageRecord messageRecord) {
-        return MessageDto.builder()
+        MessageDto build = MessageDto.builder()
                 .id(messageRecord.getId())
                 .text(messageRecord.getText())
                 .conversationId(messageRecord.getConversationId())
                 .timestamp(messageRecord.getTimestamp())
                 .build();
+        return build;
     }
 }

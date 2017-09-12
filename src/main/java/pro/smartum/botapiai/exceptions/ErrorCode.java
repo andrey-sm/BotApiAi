@@ -4,8 +4,9 @@ public enum ErrorCode {
 
     INTERNAL_SERVER(1, "Server error. Please, try later"),
     NOT_VALID_REQUEST_DATA(2, "Not valid data"),
-    CONVERSATION_NOT_EXISTS(3, "Conversation not exists");
-
+    NOT_IMPLEMENTED_YET(3, "Not implemented yet"),
+    CONVERSATION_NOT_EXISTS(4, "Conversation not exists"),
+    NOT_VALID_MESSENGER(5, "Not valid messenger");
 
     private final int errorCode;
     private final String message;
