@@ -10,11 +10,13 @@ import pro.smartum.botapiai.dto.ConversationType;
 import pro.smartum.botapiai.dto.ParametersDto;
 import pro.smartum.botapiai.dto.ResultDto;
 import pro.smartum.botapiai.dto.rq.IncomingMessageRq;
+import pro.smartum.botapiai.dto.rs.OutgoingMessageRs;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.services.MessageService;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 import static pro.smartum.botapiai.dto.ConversationType.*;
 
@@ -24,29 +26,30 @@ public class MessageServiceImpl implements MessageService {
 
     private static final String PROGRAM_O = "Program-O";
     private static final String SMARTUM_BOT = "SmartumBot";
+    private static final String WILL_REPLY_SOON = "Thank you for your message. We will reply soon.";
 
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
 
     @Override
-    public void handleMessage(IncomingMessageRq messageRq) {
+    public OutgoingMessageRs handleMessage(IncomingMessageRq messageRq) {
         ResultDto result = messageRq.getResult();
-        if(result != null) {
-            ConversationRecord convRecord = buildConversationRecord(result.getContexts().get(0).getParameters());
-            convRecord = conversationRepository.getOrCreate(convRecord);
+        ConversationRecord convRecord = buildConversationRecord(result.getContexts().get(0).getParameters());
+        convRecord = conversationRepository.getOrCreate(convRecord);
 
-            Timestamp timestamp = messageRq.getTimestamp();
-            convRecord.setTimestamp(timestamp);
-            convRecord.update();
+        Timestamp timestamp = new Timestamp(new Date().getTime());
+        convRecord.setTimestamp(timestamp);
+        convRecord.update();
 
-            String question = result.getResolvedQuery();
-            MessageRecord messageRecord = messageRepository.newRecord();
-            messageRecord.setText(question);
-            messageRecord.setConversationId(convRecord.getId());
-            messageRecord.setTimestamp(timestamp);
+        String question = result.getResolvedQuery();
+        MessageRecord messageRecord = messageRepository.newRecord();
+        messageRecord.setText(question);
+        messageRecord.setConversationId(convRecord.getId());
+        messageRecord.setTimestamp(timestamp);
 
-            messageRepository.store(messageRecord);
-        }
+        messageRepository.store(messageRecord);
+
+        return new OutgoingMessageRs(WILL_REPLY_SOON, WILL_REPLY_SOON);
 
 // https://monosnap.com/file/dQ7OC0j3rQzOrzdWUWPWikeYG3qHkZ#
 //        String answer = !StringUtils.isEmpty(question)
@@ -67,11 +70,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private ConversationType fetchConversationType(ParametersDto parameters) {
-        if(!isEmpty(parameters.getFbSenderId()))
+        if (!isEmpty(parameters.getFbSenderId()))
             return FACEBOOK;
-        if(!isEmpty(parameters.getTgChatId()))
+        if (!isEmpty(parameters.getTgChatId()))
             return TELEGRAM;
-        if(!isEmpty(parameters.getSlackChannel()) && !isEmpty(parameters.getSlackUserId()))
+        if (!isEmpty(parameters.getSlackChannel()) && !isEmpty(parameters.getSlackUserId()))
             return SLACK;
         return SKYPE;
     }

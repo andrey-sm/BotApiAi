@@ -21,8 +21,7 @@ public class AnonController {
 
     @PostMapping("/message")
     public ResponseEntity<Object> message(@RequestBody IncomingMessageRq request) {
-        messageService.handleMessage(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(messageService.handleMessage(request), HttpStatus.OK);
     }
 
     @GetMapping("/conversations")
