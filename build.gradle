@@ -140,6 +140,9 @@ clean {
 	delete sourceSets.generated.java.srcDirs
 }
 
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
+
 idea {
 	module {
 		sourceDirs += file('src/generated/java')
