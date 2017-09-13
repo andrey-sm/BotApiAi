@@ -6,9 +6,15 @@ import lombok.Data;
 public class FbReplyRq {
 
     private final Recipient recipient;
+    private final Message message;
 
     @Data
-    class Recipient {
+    public static class Recipient {
         private final String id;
+    }
+
+    @Data
+    public static class Message {
+        private final String text;
     }
 }

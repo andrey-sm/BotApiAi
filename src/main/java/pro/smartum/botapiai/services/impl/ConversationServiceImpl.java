@@ -17,6 +17,7 @@ import pro.smartum.botapiai.exceptions.NotValidMessengerException;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.retrofit.RetrofitClient;
+import pro.smartum.botapiai.retrofit.rq.FbReplyRq;
 import pro.smartum.botapiai.services.ConversationService;
 import retrofit2.Call;
 
@@ -86,21 +87,28 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     private boolean replyToTelegram(ConversationRecord convRecord, ReplyRq replyRq) {
-        // https://api.telegram.org/bot438503717:AAHGIIOeqlZ6Xw1A2yKEwsHEg0MqhC0syvw/sendmessage?chat_id=413110754&text=HiAndrey1209-2
         String tgUrlReply = TG_URL_REPLY
                 .replace(TG_CHAT_ID, convRecord.getTgChatId())
                 .replace(TG_MESSAGE, replyRq.getText());
         Call tgCall = RetrofitClient.getInstance().getTelegramController().reply(tgUrlReply);
+        return executeCall(tgCall);
+    }
+
+    private boolean replyToFacebook(ConversationRecord convRecord, ReplyRq replyRq) {
+        FbReplyRq fbReplyRq = new FbReplyRq(
+                new FbReplyRq.Recipient(convRecord.getFbSenderId()),
+                new FbReplyRq.Message(replyRq.getText()));
+        Call fbCall = RetrofitClient.getInstance().getFacebookController().reply(FB_URL_REPLY, fbReplyRq);
+        return executeCall(fbCall);
+    }
+
+    private boolean executeCall(Call call) {
         try {
-            tgCall.execute().body();
+            call.execute().body();
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
-    }
-
-    private boolean replyToFacebook(ConversationRecord convRecord, ReplyRq replyRq) {
-        return false;
     }
 }
