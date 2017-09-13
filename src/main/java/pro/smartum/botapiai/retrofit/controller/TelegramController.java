@@ -7,5 +7,5 @@ import retrofit2.http.Url;
 public interface TelegramController {
 
     @POST
-    Call reply(@Url String tgUrl);
+    Call<Object> reply(@Url String tgUrl);
 }

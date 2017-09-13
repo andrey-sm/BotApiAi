@@ -17,7 +17,7 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 public class RetrofitClient {
 
-    private static final String ROOT = "localhost:8080/";
+    private static final String ROOT = "http://localhost:8080/";
     private static RetrofitClient mInstance;
 
     public synchronized static RetrofitClient getInstance() {
