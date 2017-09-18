@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import pro.smartum.botapiai.db.tables.records.ConversationRecord;
 import pro.smartum.botapiai.db.tables.records.MessageRecord;
-import pro.smartum.botapiai.dto.AddressDto;
-import pro.smartum.botapiai.dto.ConversationType;
-import pro.smartum.botapiai.dto.ParametersDto;
+import pro.smartum.botapiai.dto.*;
 import pro.smartum.botapiai.dto.rq.IncomingMessageRq;
 import pro.smartum.botapiai.dto.rs.OutgoingMessageRs;
+import pro.smartum.botapiai.helpers.UserHelper;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.services.MessageService;
@@ -54,37 +53,72 @@ public class MessageServiceImpl implements MessageService {
     private ConversationRecord buildConversationRecord(IncomingMessageRq messageRq) {
         ConversationRecord cr = conversationRepository.newRecord();
 
-        if(!messageRq.getResult().getContexts().isEmpty()) {
-            ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
-            cr.setFbSenderId(parameters.getFbSenderId());
-            cr.setTgChatId(parameters.getTgChatId());
-            cr.setSlackUserId(parameters.getSlackUserId());
-            cr.setSlackChannelId(parameters.getSlackChannel());
+        ConversationType conversationType = fetchConversationType(messageRq);
+        cr.setType(conversationType.name());
 
-            cr.setType(fetchConversationType(parameters).name());
-        }
-
-        if(messageRq.getOriginalRequest().getData() != null && messageRq.getOriginalRequest().getData().getAddress() != null) {
-            // Skype
-            AddressDto address = messageRq.getOriginalRequest().getData().getAddress();
-            cr.setSkypeConversationId(address.getConversation().getId())
-                    .setSkypeSenderId(address.getUser().getId())
-                    .setSkypeSenderName(address.getUser().getName());
-
-            cr.setType(SKYPE.name());
+        switch (conversationType) {
+            case FACEBOOK:  buildFacebookConv(messageRq, cr);   break;
+            case SKYPE:     buildSkypeConv(messageRq, cr);      break;
+            case SLACK:     buildSlackConv(messageRq, cr);      break;
+            case TELEGRAM:  buildTelegramConv(messageRq, cr);   break;
         }
 
         return cr;
     }
 
-    private ConversationType fetchConversationType(ParametersDto parameters) {
+    private ConversationType fetchConversationType(IncomingMessageRq messageRq) {
+        DataDto data = messageRq.getOriginalRequest().getData();
+        if(data.getAddress() != null)
+            return SKYPE;
+
+        ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
         if (!isEmpty(parameters.getFbSenderId()))
             return FACEBOOK;
         if (!isEmpty(parameters.getTgChatId()))
             return TELEGRAM;
-        if (!isEmpty(parameters.getSlackChannel()) && !isEmpty(parameters.getSlackUserId()))
-            return SLACK;
-        return SKYPE;
+
+        //if (!isEmpty(parameters.getSlackChannel()) && !isEmpty(parameters.getSlackUserId()))
+        return SLACK;
+    }
+
+    private void buildFacebookConv(IncomingMessageRq messageRq, ConversationRecord convRecord) {
+        if(messageRq.getResult().getContexts().isEmpty())
+            return;
+
+        ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
+        convRecord.setFbSenderId(parameters.getFbSenderId());
+    }
+
+    private void buildSkypeConv(IncomingMessageRq messageRq, ConversationRecord cr) {
+        if(messageRq.getOriginalRequest().getData() == null || messageRq.getOriginalRequest().getData().getAddress() == null)
+            return;
+
+        AddressDto address = messageRq.getOriginalRequest().getData().getAddress();
+        cr.setSkypeConversationId(address.getConversation().getId())
+                .setSkypeSenderId(address.getUser().getId())
+                .setSkypeSenderName(address.getUser().getName());
+
+        cr.setType(SKYPE.name());
+    }
+
+    private void buildSlackConv(IncomingMessageRq messageRq, ConversationRecord convRecord) {
+        if(messageRq.getResult().getContexts().isEmpty())
+            return;
+
+        ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
+        convRecord
+                .setSlackUserId(parameters.getSlackUserId())
+                .setSlackChannelId(parameters.getSlackChannel());
+    }
+
+    private void buildTelegramConv(IncomingMessageRq messageRq, ConversationRecord convRecord) {
+        FromDto from = messageRq.getOriginalRequest().getData().getMessage().getFrom();
+        if(from == null)
+            return;
+
+        convRecord
+                .setTgChatId(from.getId())
+                .setTgSenderName(UserHelper.buildFullName(from.getFirstName(), from.getLastName()));
     }
 
     private boolean isEmpty(String str) {

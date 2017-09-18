@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class DataDto {
 
-    private final AddressDto address;   // Skype
+    private final AddressDto address;                   // Skype
+    private final OriginalRqMessageDto message;         // Telegram
 }
