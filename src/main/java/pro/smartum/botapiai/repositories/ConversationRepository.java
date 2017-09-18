@@ -42,6 +42,15 @@ public class ConversationRepository extends BaseRepository<ConversationRecord, C
         if(cr.getSlackUserId() != null)
             where.and(CONVERSATION.SLACK_USER_ID.eq(cr.getSlackUserId()));
 
+        // Skype
+        if(cr.getSkypeConversationId() != null)
+            where.and(CONVERSATION.SKYPE_CONVERSATION_ID.eq(cr.getSkypeConversationId()));
+        if(cr.getSkypeSenderId() != null)
+            where.and(CONVERSATION.SKYPE_SENDER_ID.eq(cr.getSkypeSenderId()));
+        if(cr.getSkypeSenderName() != null)
+            where.and(CONVERSATION.SKYPE_SENDER_NAME.eq(cr.getSkypeSenderName()));
+
+
         ConversationRecord conversationRecord = where.fetchOneInto(CONVERSATION);
         if(conversationRecord != null)
             return conversationRecord;

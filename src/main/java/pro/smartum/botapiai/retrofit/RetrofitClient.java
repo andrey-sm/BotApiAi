@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import pro.smartum.botapiai.retrofit.controller.FacebookController;
+import pro.smartum.botapiai.retrofit.controller.SkypeController;
 import pro.smartum.botapiai.retrofit.controller.TelegramController;
 import pro.smartum.botapiai.retrofit.error.RxErrorHandlingCallAdapterFactory;
 import retrofit2.Retrofit;
@@ -28,6 +29,7 @@ public class RetrofitClient {
 
     private final FacebookController facebookController;
     private final TelegramController telegramController;
+    private final SkypeController skypeController;
 
     private RetrofitClient() {
         final Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -45,6 +47,7 @@ public class RetrofitClient {
 
         facebookController = retrofit.create(FacebookController.class);
         telegramController = retrofit.create(TelegramController.class);
+        skypeController = retrofit.create(SkypeController.class);
     }
 
     private void initRequestInterceptor(OkHttpClient.Builder builder) {
@@ -75,5 +78,9 @@ public class RetrofitClient {
 
     public TelegramController getTelegramController() {
         return telegramController;
+    }
+
+    public SkypeController getSkypeController() {
+        return skypeController;
     }
 }

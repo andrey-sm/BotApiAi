@@ -15,6 +15,9 @@ public class ConversationConverter implements Converter<ConversationRecord, Conv
                 .fbSenderId(convRecord.getFbSenderId())
                 .tgChatId(convRecord.getTgChatId())
                 .tgSenderName(convRecord.getTgSenderName())
+                .skypeConversationId(convRecord.getSkypeConversationId())
+                .skypeSenderId(convRecord.getSkypeSenderId())
+                .skypeSenderName(convRecord.getSkypeSenderName())
                 .timestamp(convRecord.getTimestamp())
                 .build();
     }

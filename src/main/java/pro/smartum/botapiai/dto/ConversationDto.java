@@ -17,5 +17,11 @@ public class ConversationDto {
     //private final String fbRecipientId;
     private final String tgChatId;
     private final String tgSenderName;
+
+    // Skype
+    private final String skypeConversationId;
+    private final String skypeSenderId;
+    private final String skypeSenderName;
+
     private final Timestamp timestamp;
 }

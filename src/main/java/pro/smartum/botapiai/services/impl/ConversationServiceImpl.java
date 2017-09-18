@@ -6,18 +6,22 @@ import pro.smartum.botapiai.db.tables.records.ConversationRecord;
 import pro.smartum.botapiai.db.tables.records.MessageRecord;
 import pro.smartum.botapiai.dto.ConversationDto;
 import pro.smartum.botapiai.dto.ConversationType;
+import pro.smartum.botapiai.dto.GrantType;
 import pro.smartum.botapiai.dto.MessageDto;
 import pro.smartum.botapiai.dto.converters.ConverterHolder;
 import pro.smartum.botapiai.dto.rq.ReplyRq;
 import pro.smartum.botapiai.dto.rs.ConversationsRs;
 import pro.smartum.botapiai.dto.rs.MessagesRs;
 import pro.smartum.botapiai.exceptions.ConversationNotExistsException;
+import pro.smartum.botapiai.exceptions.GetSkypeTokenException;
 import pro.smartum.botapiai.exceptions.NotImplementedYetException;
 import pro.smartum.botapiai.exceptions.NotValidMessengerException;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.retrofit.RetrofitClient;
 import pro.smartum.botapiai.retrofit.rq.FbReplyRq;
+import pro.smartum.botapiai.retrofit.rq.SkypeReplyRq;
+import pro.smartum.botapiai.retrofit.rs.SkypeTokenRs;
 import pro.smartum.botapiai.services.ConversationService;
 import retrofit2.Call;
 
@@ -25,9 +29,11 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static pro.smartum.botapiai.configuration.MessengerConfig.*;
+import static pro.smartum.botapiai.retrofit.UrlManager.SKYPE_ACCESS_TOKEN_SCOPE;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +70,7 @@ public class ConversationServiceImpl implements ConversationService {
         if (convRecord == null)
             throw new ConversationNotExistsException();
 
-        if(!replyToMessenger(convRecord, replyRq))
+        if (!replyToMessenger(convRecord, replyRq))
             throw new NotValidMessengerException();
 
         MessageRecord messageRecord = messageRepository.newRecord();
@@ -80,26 +86,77 @@ public class ConversationServiceImpl implements ConversationService {
     private boolean replyToMessenger(ConversationRecord convRecord, ReplyRq replyRq) {
         ConversationType convType = ConversationType.valueOf(convRecord.getType());
         switch (convType) {
-            case TELEGRAM:  return replyToTelegram(convRecord, replyRq);
-            case FACEBOOK:  return replyToFacebook(convRecord, replyRq);
-            default: throw new NotImplementedYetException();
+            case FACEBOOK:
+                return replyToFacebook(convRecord, replyRq);
+            case SKYPE:
+                return replyToSkype(convRecord, replyRq);
+            case TELEGRAM:
+                return replyToTelegram(convRecord, replyRq);
+            default:
+                throw new NotImplementedYetException();
         }
     }
 
-    private boolean replyToTelegram(ConversationRecord convRecord, ReplyRq replyRq) {
-        String tgUrlReply = TG_URL_REPLY
-                .replace(TG_CHAT_ID, convRecord.getTgChatId())
-                .replace(TG_MESSAGE, replyRq.getText());
-        Call tgCall = RetrofitClient.getInstance().getTelegramController().reply(tgUrlReply);
-        return executeCall(tgCall);
-    }
-
+    ////////////// REPLY TO FACEBOOK ///////////////////////////////////////////////////////////////////////////////////
     private boolean replyToFacebook(ConversationRecord convRecord, ReplyRq replyRq) {
         FbReplyRq fbReplyRq = new FbReplyRq(
                 new FbReplyRq.Recipient(convRecord.getFbSenderId()),
                 new FbReplyRq.Message(replyRq.getText()));
         Call fbCall = RetrofitClient.getInstance().getFacebookController().reply(FB_URL_REPLY, fbReplyRq);
         return executeCall(fbCall);
+    }
+
+    ////////////// REPLY TO SLACK //////////////////////////////////////////////////////////////////////////////////////
+    private boolean replyToSkype(ConversationRecord convRecord, ReplyRq replyRq) {
+        String skypeToken = fetchSkypeAccessToken(convRecord);
+
+        SkypeReplyRq skypeReplyRq = new SkypeReplyRq(replyRq.getText());
+        String skypeReplyUrl = SKYPE_URL_REPLY.replace(SKYPE_CONVERSATION_ID, convRecord.getSkypeConversationId());
+
+        Call fbCall = RetrofitClient.getInstance().getSkypeController().reply(skypeReplyUrl, skypeToken, skypeReplyRq);
+        return executeCall(fbCall);
+    }
+
+    private String fetchSkypeAccessToken(ConversationRecord convRecord) {
+        Timestamp slackAccessTokenExpDate = convRecord.getSlackAccessTokenExpDate();
+
+        if (slackAccessTokenExpDate == null)
+            return fetchNewSkypeAccessToken(convRecord);
+
+        if (slackAccessTokenExpDate.getTime() > new Date().getTime())
+            return convRecord.getSlackAccessToken();
+        return fetchNewSkypeAccessToken(convRecord);
+    }
+
+    private String fetchNewSkypeAccessToken(ConversationRecord convRecord) {
+        try {
+            SkypeTokenRs skypeTokenRs = RetrofitClient.getInstance().getSkypeController()
+                    .fetchAccessToken(SKYPE_CLIENT_ID, SKYPE_CLIENT_SECRET,
+                            GrantType.client_credentials, SKYPE_ACCESS_TOKEN_SCOPE)
+                    .execute().body();
+
+            String newSkypeToken = skypeTokenRs.getTokenType() + " " + skypeTokenRs.getAccessToken();
+            Timestamp newSkypeTokenExpDate = new Timestamp(
+                    new Date().getTime() + TimeUnit.SECONDS.toMillis(skypeTokenRs.getExpiresIn()));
+
+            convRecord
+                    .setSlackAccessToken(newSkypeToken)
+                    .setSlackAccessTokenExpDate(newSkypeTokenExpDate);
+            conversationRepository.store(convRecord);
+            return newSkypeToken;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new GetSkypeTokenException();
+        }
+    }
+
+    ////////////// REPLY TO TELEGRAM ///////////////////////////////////////////////////////////////////////////////////
+    private boolean replyToTelegram(ConversationRecord convRecord, ReplyRq replyRq) {
+        String tgUrlReply = TG_URL_REPLY
+                .replace(TG_CHAT_ID, convRecord.getTgChatId())
+                .replace(TG_MESSAGE, replyRq.getText());
+        Call tgCall = RetrofitClient.getInstance().getTelegramController().reply(tgUrlReply);
+        return executeCall(tgCall);
     }
 
     private boolean executeCall(Call call) {

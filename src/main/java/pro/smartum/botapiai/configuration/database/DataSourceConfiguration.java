@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 
 @Configuration
+@ConditionalOnMissingBean(DataSource.class)
 public class DataSourceConfiguration {
 
     @Value("${spring.datasource.driver}")
@@ -27,9 +28,9 @@ public class DataSourceConfiguration {
     @Value("${connection.pool.max.size}")
     private Integer connectionMaxSize;
 
-    @ConditionalOnMissingBean(DataSource.class)
     @Bean(destroyMethod = "close")
     public DataSource dataSource() {
+
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driver);
         hikariConfig.setJdbcUrl(url);
@@ -53,6 +54,4 @@ public class DataSourceConfiguration {
 
         return new HikariDataSource(hikariConfig);
     }
-
-
 }

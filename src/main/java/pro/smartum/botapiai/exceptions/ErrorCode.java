@@ -6,7 +6,8 @@ public enum ErrorCode {
     NOT_VALID_REQUEST_DATA(2, "Not valid data"),
     NOT_IMPLEMENTED_YET(3, "Not implemented yet"),
     CONVERSATION_NOT_EXISTS(4, "Conversation not exists"),
-    NOT_VALID_MESSENGER(5, "Not valid messenger");
+    NOT_VALID_MESSENGER(5, "Not valid messenger"),
+    GET_SKYPE_TOKEN(6, "Get skype access token exception");
 
     private final int errorCode;
     private final String message;
