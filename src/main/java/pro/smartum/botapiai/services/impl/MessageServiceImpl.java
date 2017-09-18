@@ -12,11 +12,16 @@ import pro.smartum.botapiai.dto.rs.OutgoingMessageRs;
 import pro.smartum.botapiai.helpers.UserHelper;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
+import pro.smartum.botapiai.retrofit.RetrofitClient;
+import pro.smartum.botapiai.retrofit.rs.FbUserInfoRs;
 import pro.smartum.botapiai.services.MessageService;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import static pro.smartum.botapiai.configuration.MessengerConfig.FB_URL_GET_PROFILE;
+import static pro.smartum.botapiai.configuration.MessengerConfig.FB_USER_ID;
 import static pro.smartum.botapiai.dto.ConversationType.*;
 
 @Service
@@ -87,6 +92,15 @@ public class MessageServiceImpl implements MessageService {
 
         ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
         convRecord.setFbSenderId(parameters.getFbSenderId());
+
+        String fbGetProfileUrl = FB_URL_GET_PROFILE.replace(FB_USER_ID, parameters.getFbSenderId());
+        try {
+            FbUserInfoRs profile = RetrofitClient.getInstance().getFacebookController().getUserProfile(fbGetProfileUrl).execute().body();
+            convRecord.setSenderName(UserHelper.buildFullName(profile.getFirstName(), profile.getLastName()));
+            convRecord.setPhotoUrl(profile.getProfilePic());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void buildSkypeConv(IncomingMessageRq messageRq, ConversationRecord cr) {
@@ -96,7 +110,7 @@ public class MessageServiceImpl implements MessageService {
         AddressDto address = messageRq.getOriginalRequest().getData().getAddress();
         cr.setSkypeConversationId(address.getConversation().getId())
                 .setSkypeSenderId(address.getUser().getId())
-                .setSkypeSenderName(address.getUser().getName());
+                .setSenderName(address.getUser().getName());
 
         cr.setType(SKYPE.name());
     }
@@ -118,7 +132,7 @@ public class MessageServiceImpl implements MessageService {
 
         convRecord
                 .setTgChatId(from.getId())
-                .setTgSenderName(UserHelper.buildFullName(from.getFirstName(), from.getLastName()));
+                .setSenderName(UserHelper.buildFullName(from.getFirstName(), from.getLastName()));
     }
 
     private boolean isEmpty(String str) {

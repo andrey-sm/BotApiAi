@@ -2,14 +2,13 @@ package pro.smartum.botapiai.repositories;
 
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
-import org.jooq.SortOrder;
+import org.jooq.TableField;
 import org.springframework.stereotype.Repository;
 import pro.smartum.botapiai.db.tables.Conversation;
 import pro.smartum.botapiai.db.tables.records.ConversationRecord;
 
 import java.util.List;
 
-import static org.jooq.SortOrder.DESC;
 import static pro.smartum.botapiai.db.tables.Conversation.CONVERSATION;
 
 @Repository
@@ -31,25 +30,19 @@ public class ConversationRepository extends BaseRepository<ConversationRecord, C
     public ConversationRecord getOrCreate(ConversationRecord cr) {
         SelectConditionStep<ConversationRecord> where = jooq().selectFrom(CONVERSATION).where(CONVERSATION.TYPE.eq(cr.getType()));
 
-        if(cr.getFbSenderId() != null)
-            where.and(CONVERSATION.FB_SENDER_ID.eq(cr.getFbSenderId()));
-        //.and(CONVERSATION.FB_RECIPIENT_ID.eq(cr.get()))
-        if(cr.getTgChatId() != null)
-            where.and(CONVERSATION.TG_CHAT_ID.eq(cr.getTgChatId()));
-        //.and(CONVERSATION.TG_SENDER_NAME.eq(cr.getTgSenderName()))
-        if(cr.getSlackChannelId() != null)
-            where.and(CONVERSATION.SLACK_CHANNEL_ID.eq(cr.getSlackChannelId()));
-        if(cr.getSlackUserId() != null)
-            where.and(CONVERSATION.SLACK_USER_ID.eq(cr.getSlackUserId()));
+        // Facebook
+        andIfNotNull(where, CONVERSATION.FB_SENDER_ID, cr.getFbSenderId());
 
         // Skype
-        if(cr.getSkypeConversationId() != null)
-            where.and(CONVERSATION.SKYPE_CONVERSATION_ID.eq(cr.getSkypeConversationId()));
-        if(cr.getSkypeSenderId() != null)
-            where.and(CONVERSATION.SKYPE_SENDER_ID.eq(cr.getSkypeSenderId()));
-        if(cr.getSkypeSenderName() != null)
-            where.and(CONVERSATION.SKYPE_SENDER_NAME.eq(cr.getSkypeSenderName()));
+        andIfNotNull(where, CONVERSATION.SKYPE_CONVERSATION_ID, cr.getSkypeConversationId());
+        andIfNotNull(where, CONVERSATION.SKYPE_SENDER_ID, cr.getSkypeSenderId());
 
+        // Slack
+        andIfNotNull(where, CONVERSATION.SLACK_CHANNEL_ID, cr.getSlackChannelId());
+        andIfNotNull(where, CONVERSATION.SLACK_USER_ID, cr.getSlackUserId());
+
+        // Telegram
+        andIfNotNull(where, CONVERSATION.TG_CHAT_ID, cr.getTgChatId());
 
         ConversationRecord conversationRecord = where.fetchOneInto(CONVERSATION);
         if(conversationRecord != null)
@@ -57,6 +50,11 @@ public class ConversationRepository extends BaseRepository<ConversationRecord, C
 
         store(cr);
         return cr;
+    }
+
+    private void andIfNotNull(SelectConditionStep<ConversationRecord> where,  TableField<ConversationRecord, String> field, String value) {
+        if(value != null)
+            where.and(field.eq(value));
     }
 
     public ConversationRecord get(Long conversationId) {

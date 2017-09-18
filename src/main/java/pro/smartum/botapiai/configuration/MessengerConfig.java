@@ -3,8 +3,10 @@ package pro.smartum.botapiai.configuration;
 public class MessengerConfig {
 
     // Facebook
-    private static String FB_BOT_ACCESS_TOKEN = "EAAHwqkDONrcBACbZA6cgj3CUsuy4ZAKYraHXM5KZBxcbr509IB8Qg9CBWqs46FgXaVPbjKus6KZCdUd1TcpzfXo0xEKaxNRbEGeYlJuVrcsP8RjxloaIDnh0O8pWZAT5CqbuD6gk4kVEbecrZBUiIzmRjONLfWvbGDqvJprHRB9LDCn3cOnhKXpnNFynXkBiwZD";
-    public static final String FB_URL_REPLY = "https://graph.facebook.com/v2.6/me/messages?access_token=" + FB_BOT_ACCESS_TOKEN;
+    private static String FB_BOT_ACCESS_TOKEN = "EAABtoDMZBuQUBALYEqXIUChlC832MEhkHjZCPmVEES2HMUovDgF3zxGSqyXDZBBn78iWCmPMaNBkEQrBhEgeJjVynxImxxmaluYiqXXaS4d57DNq5cZAcUwqaRQENrnKEfoC2Mh38zeZBuH2oO92DY6ZAVZAKkoXaYdy1bxiJ7fbAZDZD";
+    public static final String FB_URL_REPLY = "https://graph.facebook.com/v2.10/me/messages?access_token=" + FB_BOT_ACCESS_TOKEN;
+    public static final String FB_USER_ID = "{FB_USER_ID}";
+    public static final String FB_URL_GET_PROFILE = "https://graph.facebook.com/v2.10/{FB_USER_ID}?access_token=" + FB_BOT_ACCESS_TOKEN;
 
     // Skype
     public static final String SKYPE_CLIENT_ID = "824af996-b071-4c6e-86a2-2a39bc86c624";

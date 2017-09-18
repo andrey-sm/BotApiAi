@@ -11,17 +11,23 @@ public class ConversationDto {
 
     private final Long id;
     private final String type;
-    private final String slackUserId;
-    private final String slackChannel;
-    private final String fbSenderId;
-    //private final String fbRecipientId;
-    private final String tgChatId;
-    private final String tgSenderName;
 
-    // Skype
+    // Facebook
+    private final String fbSenderId;
+
+    // Sлype
     private final String skypeConversationId;
     private final String skypeSenderId;
-    private final String skypeSenderName;
+
+    // Slack
+    private final String slackUserId;
+    private final String slackChannel;
+
+    // Telegram
+    private final String tgChatId;
+
+    private final String senderName;
+    private final String photoUrl;
 
     private final Timestamp timestamp;
 }
