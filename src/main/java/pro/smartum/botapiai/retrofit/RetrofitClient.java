@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.springframework.stereotype.Service;
 import pro.smartum.botapiai.retrofit.controller.FacebookController;
 import pro.smartum.botapiai.retrofit.controller.SkypeController;
 import pro.smartum.botapiai.retrofit.controller.TelegramController;
@@ -16,16 +17,10 @@ import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
+@Service
 public class RetrofitClient {
 
     private static final String ROOT = "http://localhost:8080/";
-    private static RetrofitClient mInstance;
-
-    public synchronized static RetrofitClient getInstance() {
-        if (mInstance == null)
-            mInstance = new RetrofitClient();
-        return mInstance;
-    }
 
     private final FacebookController facebookController;
     private final TelegramController telegramController;

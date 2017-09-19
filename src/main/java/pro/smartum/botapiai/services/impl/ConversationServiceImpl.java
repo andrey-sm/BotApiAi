@@ -1,6 +1,7 @@
 package pro.smartum.botapiai.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.smartum.botapiai.db.tables.records.ConversationRecord;
 import pro.smartum.botapiai.db.tables.records.MessageRecord;
@@ -41,6 +42,9 @@ public class ConversationServiceImpl implements ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
+
+    @Autowired
+    private final RetrofitClient retrofitClient;
 
     @Override
     public ConversationsRs getConversations() {
@@ -102,7 +106,7 @@ public class ConversationServiceImpl implements ConversationService {
         FbReplyRq fbReplyRq = new FbReplyRq(
                 new FbReplyRq.Recipient(convRecord.getFbSenderId()),
                 new FbReplyRq.Message(replyRq.getText()));
-        Call fbCall = RetrofitClient.getInstance().getFacebookController().reply(FB_URL_REPLY, fbReplyRq);
+        Call fbCall = retrofitClient.getFacebookController().reply(FB_URL_REPLY, fbReplyRq);
         return executeCall(fbCall);
     }
 
@@ -113,7 +117,7 @@ public class ConversationServiceImpl implements ConversationService {
         SkypeReplyRq skypeReplyRq = new SkypeReplyRq(replyRq.getText());
         String skypeReplyUrl = SKYPE_URL_REPLY.replace(SKYPE_CONVERSATION_ID, convRecord.getSkypeConversationId());
 
-        Call fbCall = RetrofitClient.getInstance().getSkypeController().reply(skypeReplyUrl, skypeToken, skypeReplyRq);
+        Call fbCall = retrofitClient.getSkypeController().reply(skypeReplyUrl, skypeToken, skypeReplyRq);
         return executeCall(fbCall);
     }
 
@@ -130,7 +134,7 @@ public class ConversationServiceImpl implements ConversationService {
 
     private String fetchNewSkypeAccessToken(ConversationRecord convRecord) {
         try {
-            SkypeTokenRs skypeTokenRs = RetrofitClient.getInstance().getSkypeController()
+            SkypeTokenRs skypeTokenRs = retrofitClient.getSkypeController()
                     .fetchAccessToken(SKYPE_CLIENT_ID, SKYPE_CLIENT_SECRET,
                             GrantType.client_credentials, SKYPE_ACCESS_TOKEN_SCOPE)
                     .execute().body();
@@ -155,7 +159,7 @@ public class ConversationServiceImpl implements ConversationService {
         String tgUrlReply = TG_URL_REPLY
                 .replace(TG_CHAT_ID, convRecord.getTgChatId())
                 .replace(TG_MESSAGE, replyRq.getText());
-        Call tgCall = RetrofitClient.getInstance().getTelegramController().reply(tgUrlReply);
+        Call tgCall = retrofitClient.getTelegramController().reply(tgUrlReply);
         return executeCall(tgCall);
     }
 
