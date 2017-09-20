@@ -8,6 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import org.springframework.stereotype.Service;
 import pro.smartum.botapiai.retrofit.controller.FacebookController;
 import pro.smartum.botapiai.retrofit.controller.SkypeController;
+import pro.smartum.botapiai.retrofit.controller.SlackController;
 import pro.smartum.botapiai.retrofit.controller.TelegramController;
 import pro.smartum.botapiai.retrofit.error.RxErrorHandlingCallAdapterFactory;
 import retrofit2.Retrofit;
@@ -23,8 +24,9 @@ public class RetrofitClient {
     private static final String ROOT = "http://localhost:8080/";
 
     private final FacebookController facebookController;
-    private final TelegramController telegramController;
     private final SkypeController skypeController;
+    private final SlackController slackController;
+    private final TelegramController telegramController;
 
     private RetrofitClient() {
         final Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
@@ -41,8 +43,9 @@ public class RetrofitClient {
         final Retrofit retrofit = retrofitBuilder.client(okHttpClientBuilder.build()).build();
 
         facebookController = retrofit.create(FacebookController.class);
-        telegramController = retrofit.create(TelegramController.class);
         skypeController = retrofit.create(SkypeController.class);
+        slackController = retrofit.create(SlackController.class);
+        telegramController = retrofit.create(TelegramController.class);
     }
 
     private void initRequestInterceptor(OkHttpClient.Builder builder) {
@@ -71,11 +74,15 @@ public class RetrofitClient {
         return facebookController;
     }
 
-    public TelegramController getTelegramController() {
-        return telegramController;
-    }
-
     public SkypeController getSkypeController() {
         return skypeController;
+    }
+
+    public SlackController getSlackController() {
+        return slackController;
+    }
+
+    public TelegramController getTelegramController() {
+        return telegramController;
     }
 }

@@ -94,6 +94,8 @@ public class ConversationServiceImpl implements ConversationService {
                 return replyToFacebook(convRecord, replyRq);
             case SKYPE:
                 return replyToSkype(convRecord, replyRq);
+            case SLACK:
+                return replyToSlack(convRecord, replyRq);
             case TELEGRAM:
                 return replyToTelegram(convRecord, replyRq);
             default:
@@ -122,13 +124,13 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     private String fetchSkypeAccessToken(ConversationRecord convRecord) {
-        Timestamp slackAccessTokenExpDate = convRecord.getSlackAccessTokenExpDate();
+        Timestamp slackAccessTokenExpDate = convRecord.getSkypeAccessTokenExpDate();
 
         if (slackAccessTokenExpDate == null)
             return fetchNewSkypeAccessToken(convRecord);
 
         if (slackAccessTokenExpDate.getTime() > new Date().getTime())
-            return convRecord.getSlackAccessToken();
+            return convRecord.getSkypeAccessToken();
         return fetchNewSkypeAccessToken(convRecord);
     }
 
@@ -144,14 +146,23 @@ public class ConversationServiceImpl implements ConversationService {
                     new Date().getTime() + TimeUnit.SECONDS.toMillis(skypeTokenRs.getExpiresIn()));
 
             convRecord
-                    .setSlackAccessToken(newSkypeToken)
-                    .setSlackAccessTokenExpDate(newSkypeTokenExpDate);
+                    .setSkypeAccessToken(newSkypeToken)
+                    .setSkypeAccessTokenExpDate(newSkypeTokenExpDate);
             conversationRepository.store(convRecord);
             return newSkypeToken;
         } catch (IOException e) {
             e.printStackTrace();
             throw new GetSkypeTokenException();
         }
+    }
+
+    ////////////// REPLY TO SLACK //////////////////////////////////////////////////////////////////////////////////////
+    private boolean replyToSlack(ConversationRecord convRecord, ReplyRq replyRq) {
+        String slackUrlReply = SLACK_URL_REPLY
+                .replace(SLACK_CHANNEL, convRecord.getSlackChannelId())
+                .replace(SLACK_TEXT, replyRq.getText());
+        Call slackCall = retrofitClient.getSlackController().reply(slackUrlReply);
+        return executeCall(slackCall);
     }
 
     ////////////// REPLY TO TELEGRAM ///////////////////////////////////////////////////////////////////////////////////

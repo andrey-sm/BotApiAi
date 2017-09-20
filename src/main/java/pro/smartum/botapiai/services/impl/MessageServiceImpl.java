@@ -15,6 +15,7 @@ import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.retrofit.RetrofitClient;
 import pro.smartum.botapiai.retrofit.rs.FbUserInfoRs;
+import pro.smartum.botapiai.retrofit.rs.SlackUserInfoRs;
 import pro.smartum.botapiai.retrofit.rs.TgPhotosRs;
 import pro.smartum.botapiai.services.MessageService;
 
@@ -80,14 +81,15 @@ public class MessageServiceImpl implements MessageService {
         if(data.getAddress() != null)
             return SKYPE;
 
+        if(data.getEvent() != null)
+            return SLACK;
+
         ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
         if (!isEmpty(parameters.getFbSenderId()))
             return FACEBOOK;
-        if (!isEmpty(parameters.getTgChatId()))
-            return TELEGRAM;
 
-        //if (!isEmpty(parameters.getSlackChannel()) && !isEmpty(parameters.getSlackUserId()))
-        return SLACK;
+        //if (!isEmpty(parameters.getTgChatId()))
+            return TELEGRAM;
     }
 
     ////////////// BUILD FACEBOOK CONVERSATION  ////////////////////////////////////////////////////////////////////////
@@ -123,13 +125,22 @@ public class MessageServiceImpl implements MessageService {
 
     ////////////// BUILD SLACK CONVERSATION  ///////////////////////////////////////////////////////////////////////////
     private void buildSlackConv(IncomingMessageRq messageRq, ConversationRecord convRecord) {
-        if(messageRq.getResult().getContexts().isEmpty())
-            return;
+        EventDto slackEvent = messageRq.getOriginalRequest().getData().getEvent();
 
-        ParametersDto parameters = messageRq.getResult().getContexts().get(0).getParameters();
         convRecord
-                .setSlackUserId(parameters.getSlackUserId())
-                .setSlackChannelId(parameters.getSlackChannel());
+                .setSlackUserId(slackEvent.getUser())
+                .setSlackChannelId(slackEvent.getChannel());
+
+        try {
+            SlackUserInfoRs slackUserInfoRs = retrofitClient.getSlackController().getUserProfile(SLACK_BOT_TOKEN, convRecord.getSlackUserId()).execute().body();
+            if(slackUserInfoRs != null && slackUserInfoRs.getUser() != null && slackUserInfoRs.getUser().getProfile() != null) {
+                SlackUserInfoRs.SlackProfileDto profile = slackUserInfoRs.getUser().getProfile();
+                convRecord.setSenderName(profile.getRealName());
+                convRecord.setPhotoUrl(profile.getImageUrl());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     ////////////// BUILD TELEGRAM CONVERSATION  ////////////////////////////////////////////////////////////////////////

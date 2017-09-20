@@ -17,6 +17,11 @@ public class MessengerConfig {
     public static final String SKYPE_URL_REPLY = "https://smba.trafficmanager.net/apis/v3/conversations/{SKYPE_CONVERSATION_ID}/activities";
 
     // Slack
+    public static final String SLACK_BOT_TOKEN = "xoxp-241133299236-242166156743-240562246817-c5f882c823d4abda80c2ccbaf46c2fb0";
+    public static final String SLACK_CHANNEL = "{SLACK_CHANNEL}";
+    public static final String SLACK_TEXT = "{SLACK_TEXT}";
+    public static final String SLACK_URL_REPLY = "https://slack.com/api/chat.postMessage?token=" + SLACK_BOT_TOKEN
+            + "&channel={SLACK_CHANNEL}&text={SLACK_TEXT}";
 
     // Telegram
     private static String TG_BOT_ID = "421328021:AAEQlskNLS4gMzT7uitSk6Fj8dkcwC2D3gk";
