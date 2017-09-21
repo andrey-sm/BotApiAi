@@ -163,7 +163,7 @@ public class MessageServiceImpl implements MessageService {
 
             String tgUserPhotoFileId = tgUserPhotos.getResult().getPhotos().get(0)
                     .stream()
-                    .filter( it -> it.getHeight() == TG_PHOTO_MAX_SIZE)
+                    .filter( it -> it.getHeight().intValue() == TG_PHOTO_MAX_SIZE)
                     .findFirst()
                     .get().getFileId();
 
