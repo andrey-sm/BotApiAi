@@ -13,6 +13,7 @@ public class MessageConverter implements Converter<MessageRecord, MessageDto> {
                 .conversationId(messageRecord.getConversationId())
                 .timestamp(messageRecord.getTimestamp())
                 .botReply(messageRecord.getBotreply())
+                .read(messageRecord.getRead())
                 .build();
         return build;
     }

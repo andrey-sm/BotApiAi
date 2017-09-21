@@ -30,4 +30,6 @@ public class ConversationDto {
     private final String photoUrl;
 
     private final Timestamp timestamp;
+
+    private Integer unreadNumber;
 }

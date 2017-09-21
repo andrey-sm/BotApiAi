@@ -14,4 +14,5 @@ public class MessageDto {
     private final Long conversationId;
     private final Timestamp timestamp;
     private final Boolean botReply;
+    private final Boolean read;
 }

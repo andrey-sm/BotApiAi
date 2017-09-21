@@ -1,6 +1,7 @@
 package pro.smartum.botapiai.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.jooq.Record2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.smartum.botapiai.db.tables.records.ConversationRecord;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,11 @@ public class ConversationServiceImpl implements ConversationService {
         final List<ConversationRecord> conversations = conversationRepository.getAllSorted();
         final List<ConversationDto> conversationDtos =
                 conversations.stream().map(c -> ConverterHolder.INSTANCE.convert(c)).collect(Collectors.toList());
+
+        Map<Long, Integer> unreadCountersMap = conversationRepository.getUnreadCounters()
+                .stream().collect(Collectors.toMap(Record2::value1, Record2::value2));
+
+        conversationDtos.stream().forEach(c -> c.setUnreadNumber(unreadCountersMap.get(c.getId())));
 
         return new ConversationsRs(conversationDtos, conversationDtos.size());
     }

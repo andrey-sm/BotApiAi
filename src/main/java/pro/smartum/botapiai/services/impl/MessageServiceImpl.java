@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 import pro.smartum.botapiai.db.tables.records.ConversationRecord;
 import pro.smartum.botapiai.db.tables.records.MessageRecord;
 import pro.smartum.botapiai.dto.*;
+import pro.smartum.botapiai.dto.converters.ConverterHolder;
 import pro.smartum.botapiai.dto.rq.IncomingMessageRq;
 import pro.smartum.botapiai.dto.rs.OutgoingMessageRs;
 import pro.smartum.botapiai.helpers.UserHelper;
@@ -182,7 +183,11 @@ public class MessageServiceImpl implements MessageService {
         return StringUtils.isEmpty(str);
     }
 
-
+    @Override
+    public MessageDto markAsRead(Long messageId) {
+        messageRepository.markAsRead(messageId);
+        return ConverterHolder.INSTANCE.convert(messageRepository.get(messageId));
+    }
 
     // https://monosnap.com/file/dQ7OC0j3rQzOrzdWUWPWikeYG3qHkZ#
 //        String answer = !StringUtils.isEmpty(question)
