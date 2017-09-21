@@ -21,11 +21,12 @@ public class MessageRepository extends BaseRepository<MessageRecord, Message> {
         return MESSAGE;
     }
 
-    public List<MessageRecord> getSorted(Long conversationId) {
+    public List<MessageRecord> getSorted(int number, int count, long conversationId) {
         return jooq().select()
                 .from(MESSAGE)
                 .where(MESSAGE.CONVERSATION_ID.eq(conversationId))
                 .orderBy(MESSAGE.TIMESTAMP.desc())
+                .limit(number, count)
                 .fetchInto(MESSAGE);
     }
 

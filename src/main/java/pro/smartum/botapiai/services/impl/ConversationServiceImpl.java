@@ -63,12 +63,12 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public MessagesRs getConversationHistory(long conversationId) {
+    public MessagesRs getConversationHistory(int number, int count, long conversationId) {
         final ConversationRecord convRecord = conversationRepository.get(conversationId);
         if (convRecord == null)
             throw new ConversationNotExistsException();
 
-        final List<MessageRecord> messages = messageRepository.getSorted(conversationId);
+        final List<MessageRecord> messages = messageRepository.getSorted(number, count, conversationId);
         final List<MessageDto> messageDtos =
                 messages.stream().map(m -> ConverterHolder.INSTANCE.convert(m)).collect(Collectors.toList());
 

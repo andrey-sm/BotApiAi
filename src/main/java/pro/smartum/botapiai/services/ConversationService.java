@@ -9,6 +9,6 @@ import pro.smartum.botapiai.dto.rs.MessagesRs;
 public interface ConversationService {
 
     ConversationsRs getConversations();
-    MessagesRs getConversationHistory(long conversationId);
+    MessagesRs getConversationHistory(int number, int count, long conversationId);
     MessageDto replyToConversation(long conversationId, ReplyRq replyRq);
 }

@@ -21,8 +21,10 @@ public class ConversationController {
     }
 
     @GetMapping("/{id}/history")
-    public ResponseEntity<Object> getConversation(@PathVariable("id") Long conversationId) {
-        return new ResponseEntity<>(conversationService.getConversationHistory(conversationId), HttpStatus.OK);
+    public ResponseEntity<Object> getConversation(@PathVariable("id") Long conversationId,
+                                                  @RequestParam(value = "number", defaultValue = "0") Integer number,
+                                                  @RequestParam(value = "count", defaultValue = "10") Integer count) {
+        return new ResponseEntity<>(conversationService.getConversationHistory(number, count, conversationId), HttpStatus.OK);
     }
 
     @PostMapping("/{id}/reply")
