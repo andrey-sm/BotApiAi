@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1038292232385",
+    "firebase_url": "https://botapiaidevak.firebaseio.com",
+    "project_id": "botapiaidevak",
+    "storage_bucket": "botapiaidevak.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038292232385:android:40584f6e417e19fc",
+        "android_client_info": {
+          "package_name": "pro.smartum.mb"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038292232385-pvpc6ges8rm6fr9ldfl0kgh1jpdiajqj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6YaWfAqCLgTOlld2QDGvx70DVTsrt-W8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

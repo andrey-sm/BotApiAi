@@ -12,6 +12,7 @@ import pro.smartum.botapiai.dto.converters.ConverterHolder;
 import pro.smartum.botapiai.dto.rq.IncomingMessageRq;
 import pro.smartum.botapiai.dto.rs.OutgoingMessageRs;
 import pro.smartum.botapiai.helpers.UserHelper;
+import pro.smartum.botapiai.pushes.FcmManager;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
 import pro.smartum.botapiai.retrofit.RetrofitClient;
@@ -38,6 +39,7 @@ public class MessageServiceImpl implements MessageService {
     private static final String SMARTUM_BOT = "SmartumBot";
     private static final String WILL_REPLY_SOON = "Thank you for your message. We will reply soon.";
 
+    private final FcmManager fcmManager;
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
 
@@ -59,6 +61,11 @@ public class MessageServiceImpl implements MessageService {
         messageRepository.store(messageRecord);
 
         return new OutgoingMessageRs(WILL_REPLY_SOON, WILL_REPLY_SOON);
+    }
+
+    @Override
+    public void sendPush() throws IOException {
+        fcmManager.send();
     }
 
     private ConversationRecord buildConversationRecord(IncomingMessageRq messageRq) {

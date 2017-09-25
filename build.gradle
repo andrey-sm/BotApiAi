@@ -80,6 +80,19 @@ dependencies {
 	compile 'org.apache.commons:commons-lang3:3.4'
 	compile "org.apache.commons:commons-collections4:4.1"
 
+//	compile 'com.google.firebase:firebase-admin:5.3.1'
+
+	// https://mvnrepository.com/artifact/de.bytefish.fcmjava/fcmjava-core
+	compile group: 'de.bytefish.fcmjava', name: 'fcmjava-core', version: '2.2'
+
+	// https://mvnrepository.com/artifact/de.bytefish.fcmjava/fcmjava-client
+	compile group: 'de.bytefish.fcmjava', name: 'fcmjava-client', version: '2.2'
+
+
+	compile 'com.ganyo:gcm-server:1.1.0'
+
+
+
 	compile 'com.zaxxer:HikariCP:2.4.7'
 
 	compile "com.squareup.retrofit2:retrofit:$retrofit_version"
