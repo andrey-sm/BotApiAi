@@ -4,6 +4,8 @@ ext {
     datasource_username = "bkuxhgtwuexglk"
     datasource_password = "814da00e418675f1ded1ecad727626213646cd445992da6e7a0bd5af5b1378c7"
 
+    fcm_key = "AAAA8b8KKME:APA91bFr-sqYRXl-hU75-yV_bFCusc993d3DagjqKJLbKeqhGR_2l1vcVAQ-o3dvOFAWgUcY4m9zdgNqG_Y6fOoyuArlLH_zDwbAVzYV8gsSv-SV4ywh4HDKiD9qN4j6259NpIVrDnfz"
+
     // Facebook
     fb_bot_access_token = "EAABtoDMZBuQUBALYEqXIUChlC832MEhkHjZCPmVEES2HMUovDgF3zxGSqyXDZBBn78iWCmPMaNBkEQrBhEgeJjVynxImxxmaluYiqXXaS4d57DNq5cZAcUwqaRQENrnKEfoC2Mh38zeZBuH2oO92DY6ZAVZAKkoXaYdy1bxiJ7fbAZDZD"
 

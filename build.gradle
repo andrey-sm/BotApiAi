@@ -80,6 +80,10 @@ dependencies {
 	compile 'org.apache.commons:commons-lang3:3.4'
 	compile "org.apache.commons:commons-collections4:4.1"
 
+	compile group: 'de.bytefish.fcmjava', name: 'fcmjava-core', version: '2.2'
+	compile group: 'de.bytefish.fcmjava', name: 'fcmjava-client', version: '2.2'
+	compile 'com.ganyo:gcm-server:1.1.0'
+
 	compile 'com.zaxxer:HikariCP:2.4.7'
 
 	compile "com.squareup.retrofit2:retrofit:$retrofit_version"
