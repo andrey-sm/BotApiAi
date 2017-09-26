@@ -2,7 +2,6 @@ package pro.smartum.botapiai.services.impl;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import pro.smartum.botapiai.db.tables.records.ConversationRecord;
@@ -15,6 +14,7 @@ import pro.smartum.botapiai.helpers.UserHelper;
 import pro.smartum.botapiai.pushes.FcmManager;
 import pro.smartum.botapiai.repositories.ConversationRepository;
 import pro.smartum.botapiai.repositories.MessageRepository;
+import pro.smartum.botapiai.repositories.PushDeviceRepository;
 import pro.smartum.botapiai.retrofit.RetrofitClient;
 import pro.smartum.botapiai.retrofit.rs.FbUserInfoRs;
 import pro.smartum.botapiai.retrofit.rs.SlackUserInfoRs;
@@ -24,16 +24,21 @@ import pro.smartum.botapiai.services.MessageService;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static pro.smartum.botapiai.configuration.MessengerConfig.*;
 import static pro.smartum.botapiai.dto.ConversationType.*;
+import static pro.smartum.botapiai.pushes.FcmManager.*;
 
 @Service
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
 
-    @Autowired
     private RetrofitClient retrofitClient;
+    private PushDeviceRepository pushDeviceRepository;
 
     private static final String PROGRAM_O = "Program-O";
     private static final String SMARTUM_BOT = "SmartumBot";
@@ -57,15 +62,22 @@ public class MessageServiceImpl implements MessageService {
         messageRecord.setText(question);
         messageRecord.setConversationId(convRecord.getId());
         messageRecord.setTimestamp(timestamp);
-
         messageRepository.store(messageRecord);
+
+        sendPushNotification(convRecord, messageRecord);
 
         return new OutgoingMessageRs(WILL_REPLY_SOON, WILL_REPLY_SOON);
     }
 
-    @Override
-    public void sendPush() throws IOException {
-        fcmManager.send();
+    private void sendPushNotification(ConversationRecord convRecord, MessageRecord messageRecord) {
+        List<String> tokens = pushDeviceRepository.getAll().stream().map(it -> it.getToken()).collect(Collectors.toList());
+
+        Map<String, String> fields = new HashMap<>();
+        fields.put(MESSAGE, messageRecord.getText());
+        fields.put(SENDER, convRecord.getSenderName());
+        fields.put(CONVERSATION_ID, convRecord.getId().toString());
+
+        fcmManager.sendNotification(tokens, fields);
     }
 
     private ConversationRecord buildConversationRecord(IncomingMessageRq messageRq) {
