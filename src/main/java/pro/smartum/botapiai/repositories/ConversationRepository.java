@@ -58,10 +58,11 @@ public class ConversationRepository extends BaseRepository<ConversationRecord, C
         andIfNotNull(where, CONVERSATION.TG_CHAT_ID, cr.getTgChatId());
 
         ConversationRecord conversationRecord = where.fetchOneInto(CONVERSATION);
-        if(conversationRecord != null)
-            return conversationRecord;
+        if(conversationRecord != null) {
+            cr.setId(conversationRecord.getId());
+            cr.update();
+        } else store(cr);
 
-        store(cr);
         return cr;
     }
 

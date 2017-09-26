@@ -134,6 +134,13 @@ processResources {
 	filesMatching("*.properties") {
 		expand(project.properties)
 	}
+
+	doLast {
+		copy {
+			from 'build/resources/main/application.properties'
+			into 'out/production/resources'
+		}
+	}
 }
 
 clean {
