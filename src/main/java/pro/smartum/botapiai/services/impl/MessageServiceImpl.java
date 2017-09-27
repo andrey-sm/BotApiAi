@@ -34,7 +34,7 @@ import static pro.smartum.botapiai.pushes.FcmManager.*;
 @RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
 
-    private static final String WILL_REPLY_SOON = "Thank you for your message. We will messenger soon.";
+    private static final String WILL_REPLY_SOON = "Thank you for your message. We will reply soon.";
 
     private final FcmManager fcmManager;
     private final ConversationRepository conversationRepository;

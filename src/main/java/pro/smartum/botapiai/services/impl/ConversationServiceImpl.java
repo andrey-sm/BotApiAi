@@ -48,6 +48,15 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
+    public ConversationDto getConversation(long conversationId) {
+        final ConversationRecord convRecord = conversationRepository.get(conversationId);
+        if (convRecord == null)
+            throw new ConversationNotExistsException();
+
+        return ConverterHolder.INSTANCE.convert(convRecord);
+    }
+
+    @Override
     public MessagesRs getConversationHistory(int number, int count, long conversationId) {
         final ConversationRecord convRecord = conversationRepository.get(conversationId);
         if (convRecord == null)

@@ -20,10 +20,15 @@ public class ConversationController {
         return new ResponseEntity<>(conversationService.getConversations(), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getConversation(@PathVariable("id") Long conversationId) {
+        return new ResponseEntity<>(conversationService.getConversation(conversationId), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}/history")
-    public ResponseEntity<Object> getConversation(@PathVariable("id") Long conversationId,
-                                                  @RequestParam(value = "number", defaultValue = "0") Integer number,
-                                                  @RequestParam(value = "count", defaultValue = "10") Integer count) {
+    public ResponseEntity<Object> getConversationHistory(@PathVariable("id") Long conversationId,
+                                                         @RequestParam(value = "number", defaultValue = "0") Integer number,
+                                                         @RequestParam(value = "count", defaultValue = "10") Integer count) {
         return new ResponseEntity<>(conversationService.getConversationHistory(number, count, conversationId), HttpStatus.OK);
     }
 
