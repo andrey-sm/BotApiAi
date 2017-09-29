@@ -20,6 +20,7 @@ public class AnonController {
 
     @PostMapping("/message")
     public ResponseEntity<Object> message(@RequestBody IncomingMessageRq request) {
-        return new ResponseEntity<>(messageService.handleMessage(request), HttpStatus.OK);
+        messageService.handleMessage(request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

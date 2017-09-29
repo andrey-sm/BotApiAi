@@ -34,4 +34,6 @@ public class MessengerConfig {
     public static final String TG_URL_PHOTO_PATH = "https://api.telegram.org/file/bot" + TG_BOT_ID + "/" + TG_FILE_PATH;
 
     public static final Integer TG_PHOTO_MAX_SIZE = 640;
+
+    public static final Integer REPLY_WITH_DEFAULT_TEXT_DELAY = 30000;  // 30 sec.
 }
