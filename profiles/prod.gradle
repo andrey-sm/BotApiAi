@@ -1,0 +1,25 @@
+ext {
+    datasource_driver = "org.postgresql.Driver"
+    datasource_url = "jdbc:postgresql://ec2-54-75-228-125.eu-west-1.compute.amazonaws.com:5432/d379l7q1t04qnf?sslmode=require&characterEncoding=UTF-8"
+    datasource_username = "zkeirertlfkbxc"
+    datasource_password = "44eccf4637f707cdf6ede7dd3bcd3ec48ec813a1aa8ee0deae99ecc433499135"
+
+    // Dev key !!!
+    fcm_key = "AAAA8b8KKME:APA91bFr-sqYRXl-hU75-yV_bFCusc993d3DagjqKJLbKeqhGR_2l1vcVAQ-o3dvOFAWgUcY4m9zdgNqG_Y6fOoyuArlLH_zDwbAVzYV8gsSv-SV4ywh4HDKiD9qN4j6259NpIVrDnfz"
+
+    // Facebook
+    fb_bot_access_token = ""
+
+    // Skype
+    skype_client_id = "1a5332d4-1bd6-4139-b96b-a19e07f02958"
+    skype_client_secret = "x6jeATbNKHBSVfRmwXMGCdN"
+
+    // Slack
+    slack_bot_token = ""
+
+    // Telegram
+    tg_bot_id = ""
+
+}
+
+println "prod profile activated"
