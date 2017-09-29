@@ -19,6 +19,7 @@ ext {
     // Telegram
     tg_bot_id = "421328021:AAEQlskNLS4gMzT7uitSk6Fj8dkcwC2D3gk"
 
+    spring_profiles_active = "dev"
 }
 
 println "dev profile activated"
